@@ -9,17 +9,12 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as RecettesRouteImport } from './routes/recettes'
 import { Route as CoutsRouteImport } from './routes/couts'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RecettesIndexRouteImport } from './routes/recettes.index'
 import { Route as RecettesIdRouteImport } from './routes/recettes.$id'
 
-const RecettesRoute = RecettesRouteImport.update({
-  id: '/recettes',
-  path: '/recettes',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const CoutsRoute = CoutsRouteImport.update({
   id: '/couts',
   path: '/couts',
@@ -35,6 +30,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RecettesIndexRoute = RecettesIndexRouteImport.update({
+  id: '/recettes/',
+  path: '/recettes/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RecettesIdRoute = RecettesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -45,48 +45,41 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/couts': typeof CoutsRoute
-  '/recettes': typeof RecettesRouteWithChildren
   '/recettes/$id': typeof RecettesIdRoute
+  '/recettes/': typeof RecettesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/couts': typeof CoutsRoute
-  '/recettes': typeof RecettesRouteWithChildren
   '/recettes/$id': typeof RecettesIdRoute
+  '/recettes': typeof RecettesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/couts': typeof CoutsRoute
-  '/recettes': typeof RecettesRouteWithChildren
   '/recettes/$id': typeof RecettesIdRoute
+  '/recettes/': typeof RecettesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/couts' | '/recettes' | '/recettes/$id'
+  fullPaths: '/' | '/auth' | '/couts' | '/recettes/$id' | '/recettes/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/couts' | '/recettes' | '/recettes/$id'
-  id: '__root__' | '/' | '/auth' | '/couts' | '/recettes' | '/recettes/$id'
+  to: '/' | '/auth' | '/couts' | '/recettes/$id' | '/recettes'
+  id: '__root__' | '/' | '/auth' | '/couts' | '/recettes/$id' | '/recettes/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   CoutsRoute: typeof CoutsRoute
-  RecettesRoute: typeof RecettesRouteWithChildren
+  RecettesIndexRoute: typeof RecettesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/recettes': {
-      id: '/recettes'
-      path: '/recettes'
-      fullPath: '/recettes'
-      preLoaderRoute: typeof RecettesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/couts': {
       id: '/couts'
       path: '/couts'
@@ -108,6 +101,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/recettes/': {
+      id: '/recettes/'
+      path: '/recettes'
+      fullPath: '/recettes/'
+      preLoaderRoute: typeof RecettesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/recettes/$id': {
       id: '/recettes/$id'
       path: '/$id'
@@ -118,24 +118,21 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface RecettesRouteChildren {
-  RecettesIdRoute: typeof RecettesIdRoute
-}
-
-const RecettesRouteChildren: RecettesRouteChildren = {
-  RecettesIdRoute: RecettesIdRoute,
-}
-
-const RecettesRouteWithChildren = RecettesRoute._addFileChildren(
-  RecettesRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   CoutsRoute: CoutsRoute,
-  RecettesRoute: RecettesRouteWithChildren,
+  RecettesIndexRoute: RecettesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
