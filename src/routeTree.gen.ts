@@ -12,7 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as CoutsRouteImport } from './routes/couts'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as RecettesIndexRouteImport } from './routes/recettes.index'
+import { Route as RecettesIndexRouteImport } from './routes/recettes/index'
 import { Route as RecettesIdRouteImport } from './routes/recettes.$id'
 
 const CoutsRoute = CoutsRouteImport.update({
