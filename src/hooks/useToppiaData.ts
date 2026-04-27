@@ -127,7 +127,7 @@ export function useFixedCosts() {
       return {
         ...data,
         other_charges: Array.isArray(data.other_charges)
-          ? (data.other_charges as FixedCosts["other_charges"])
+          ? (data.other_charges as unknown as FixedCosts["other_charges"])
           : [],
       } as FixedCosts;
     },
@@ -140,13 +140,13 @@ export function useUpsertFixedCosts() {
     mutationFn: async (input: Omit<FixedCosts, "id" | "user_id" | "created_at" | "updated_at">) => {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) throw new Error("Non authentifié");
-      const payload = {
+      const payload = [{
         user_id: userData.user.id,
         electricity: input.electricity,
         rent: input.rent,
-        other_charges: input.other_charges,
+        other_charges: input.other_charges as unknown as never,
         hours_per_month: input.hours_per_month,
-      };
+      }];
       const { error } = await supabase
         .from("fixed_costs")
         .upsert(payload, { onConflict: "user_id" });
