@@ -4,18 +4,12 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/*
- * Design system definition.
- *
- * The @theme inline block maps CSS custom properties to Tailwind utility
- * classes (e.g. --color-primary -> bg-primary, text-primary).
- *
- * The :root and .dark blocks define the actual color values using oklch.
- * All colors MUST use oklch format.
- *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+/* TOPPIA — Pâtisserie artisanale
+ * Cerise   #54001C  primary
+ * Citron   #EDD494  surface chaud (cards)
+ * Banane   #D9A654  doré (accents secondaires)
+ * Framboise#E87391  accent vif
+ * Zeste    #F2DEA8  background général
  */
 
 @theme inline {
@@ -26,6 +20,10 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+
+  --font-display: "Playfair Display", ui-serif, Georgia, serif;
+  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -46,11 +44,22 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
+
+  --color-cerise: var(--cerise);
+  --color-citron: var(--citron);
+  --color-banane: var(--banane);
+  --color-framboise: var(--framboise);
+  --color-zeste: var(--zeste);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -59,86 +68,110 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  --shadow-soft: 0 4px 16px -4px color-mix(in oklab, var(--cerise) 12%, transparent);
+  --shadow-card: 0 6px 24px -8px color-mix(in oklab, var(--cerise) 18%, transparent);
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
+  --radius: 0.875rem;
+
+  /* Brand TOPPIA */
+  --cerise: oklch(0.27 0.13 14);          /* #54001C */
+  --citron: oklch(0.88 0.09 95);          /* #EDD494 */
+  --banane: oklch(0.74 0.13 78);          /* #D9A654 */
+  --framboise: oklch(0.71 0.16 5);        /* #E87391 */
+  --zeste: oklch(0.91 0.07 92);           /* #F2DEA8 */
+
+  --background: var(--zeste);
+  --foreground: oklch(0.22 0.05 20);
+
+  --card: oklch(0.98 0.02 90);
+  --card-foreground: oklch(0.22 0.05 20);
+
+  --popover: oklch(0.98 0.02 90);
+  --popover-foreground: oklch(0.22 0.05 20);
+
+  --primary: var(--cerise);
+  --primary-foreground: oklch(0.98 0.02 90);
+
+  --secondary: var(--citron);
+  --secondary-foreground: var(--cerise);
+
+  --muted: oklch(0.93 0.04 90);
+  --muted-foreground: oklch(0.45 0.04 30);
+
+  --accent: var(--framboise);
+  --accent-foreground: oklch(0.98 0.02 90);
+
+  --destructive: oklch(0.55 0.22 25);
+  --destructive-foreground: oklch(0.98 0.02 90);
+
+  --border: oklch(0.82 0.06 85);
+  --input: oklch(0.95 0.04 90);
+  --ring: var(--cerise);
+
+  --success: oklch(0.62 0.15 145);
+  --warning: oklch(0.72 0.16 60);
+
+  --chart-1: var(--cerise);
+  --chart-2: var(--banane);
+  --chart-3: var(--framboise);
+  --chart-4: var(--citron);
+  --chart-5: oklch(0.55 0.12 30);
+
+  --sidebar: oklch(0.96 0.04 90);
+  --sidebar-foreground: var(--cerise);
+  --sidebar-primary: var(--cerise);
+  --sidebar-primary-foreground: oklch(0.98 0.02 90);
+  --sidebar-accent: var(--citron);
+  --sidebar-accent-foreground: var(--cerise);
+  --sidebar-border: oklch(0.82 0.06 85);
+  --sidebar-ring: var(--cerise);
 }
 
 .dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+  --background: oklch(0.18 0.04 20);
+  --foreground: oklch(0.95 0.04 90);
+  --card: oklch(0.24 0.05 20);
+  --card-foreground: oklch(0.95 0.04 90);
+  --popover: oklch(0.24 0.05 20);
+  --popover-foreground: oklch(0.95 0.04 90);
+  --primary: var(--framboise);
+  --primary-foreground: oklch(0.18 0.04 20);
+  --secondary: oklch(0.3 0.05 25);
+  --secondary-foreground: oklch(0.95 0.04 90);
+  --muted: oklch(0.3 0.04 25);
+  --muted-foreground: oklch(0.78 0.04 90);
+  --accent: var(--banane);
+  --accent-foreground: oklch(0.18 0.04 20);
+  --destructive: oklch(0.6 0.22 25);
+  --destructive-foreground: oklch(0.98 0.02 90);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: var(--framboise);
+  --sidebar: oklch(0.22 0.05 20);
+  --sidebar-foreground: oklch(0.95 0.04 90);
+  --sidebar-primary: var(--framboise);
+  --sidebar-primary-foreground: oklch(0.18 0.04 20);
+  --sidebar-accent: oklch(0.3 0.05 25);
+  --sidebar-accent-foreground: oklch(0.95 0.04 90);
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-ring: var(--framboise);
 }
 
 @layer base {
   * {
     border-color: var(--color-border);
   }
-
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+  }
+  h1, h2, h3, h4, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
   }
 }
