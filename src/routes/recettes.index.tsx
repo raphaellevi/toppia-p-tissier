@@ -7,7 +7,7 @@ import { ImageIcon, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { formatEuro } from "@/lib/toppia-calc";
 
-export const Route = createFileRoute("/recettes")({
+export const Route = createFileRoute("/recettes/")({
   component: RecettesPage,
   head: () => ({ meta: [{ title: "Recettes — TOPPIA" }] }),
 });
@@ -82,11 +82,11 @@ function RecettesPage() {
                   <div className="aspect-[16/10] w-full overflow-hidden bg-secondary">
                     {r.image_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      (<img
                         src={r.image_url}
                         alt={r.title}
                         className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                      />
+                      />)
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-banane">
                         <ImageIcon className="h-10 w-10" />
@@ -113,5 +113,5 @@ function RecettesPage() {
         )}
       </div>
     </ProtectedLayout>
-  );
+  )
 }
