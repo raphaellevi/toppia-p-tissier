@@ -14,7 +14,240 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      fixed_costs: {
+        Row: {
+          created_at: string
+          electricity: number
+          hours_per_month: number
+          id: string
+          other_charges: Json
+          rent: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          electricity?: number
+          hours_per_month?: number
+          id?: string
+          other_charges?: Json
+          rent?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          electricity?: number
+          hours_per_month?: number
+          id?: string
+          other_charges?: Json
+          rent?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ingredients: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          pack_price: number
+          pack_quantity: number
+          unit: Database["public"]["Enums"]["ingredient_unit"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          pack_price: number
+          pack_quantity: number
+          unit?: Database["public"]["Enums"]["ingredient_unit"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          pack_price?: number
+          pack_quantity?: number
+          unit?: Database["public"]["Enums"]["ingredient_unit"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      labor_profiles: {
+        Row: {
+          created_at: string
+          hourly_rate: number
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          hourly_rate: number
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          hourly_rate?: number
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      recipe_cost_lines: {
+        Row: {
+          created_at: string
+          free_amount: number | null
+          free_label: string | null
+          id: string
+          ingredient_id: string | null
+          labor_profile_id: string | null
+          minutes: number | null
+          position: number
+          quantity: number | null
+          recipe_id: string
+          type: Database["public"]["Enums"]["cost_line_type"]
+        }
+        Insert: {
+          created_at?: string
+          free_amount?: number | null
+          free_label?: string | null
+          id?: string
+          ingredient_id?: string | null
+          labor_profile_id?: string | null
+          minutes?: number | null
+          position?: number
+          quantity?: number | null
+          recipe_id: string
+          type: Database["public"]["Enums"]["cost_line_type"]
+        }
+        Update: {
+          created_at?: string
+          free_amount?: number | null
+          free_label?: string | null
+          id?: string
+          ingredient_id?: string | null
+          labor_profile_id?: string | null
+          minutes?: number | null
+          position?: number
+          quantity?: number | null
+          recipe_id?: string
+          type?: Database["public"]["Enums"]["cost_line_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipe_cost_lines_ingredient_id_fkey"
+            columns: ["ingredient_id"]
+            isOneToOne: false
+            referencedRelation: "ingredients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recipe_cost_lines_labor_profile_id_fkey"
+            columns: ["labor_profile_id"]
+            isOneToOne: false
+            referencedRelation: "labor_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recipe_cost_lines_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recipe_extra_fees: {
+        Row: {
+          amount_per_piece: number
+          created_at: string
+          id: string
+          label: string
+          recipe_id: string
+        }
+        Insert: {
+          amount_per_piece?: number
+          created_at?: string
+          id?: string
+          label: string
+          recipe_id: string
+        }
+        Update: {
+          amount_per_piece?: number
+          created_at?: string
+          id?: string
+          label?: string
+          recipe_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipe_extra_fees_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recipes: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          manual_ttc_price: number | null
+          pricing_mode: Database["public"]["Enums"]["pricing_mode"]
+          target_margin_percent: number
+          title: string
+          updated_at: string
+          user_id: string
+          vat_rate: number
+          yield_pieces: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          manual_ttc_price?: number | null
+          pricing_mode?: Database["public"]["Enums"]["pricing_mode"]
+          target_margin_percent?: number
+          title: string
+          updated_at?: string
+          user_id: string
+          vat_rate?: number
+          yield_pieces?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          manual_ttc_price?: number | null
+          pricing_mode?: Database["public"]["Enums"]["pricing_mode"]
+          target_margin_percent?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+          vat_rate?: number
+          yield_pieces?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +256,9 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      cost_line_type: "ingredient" | "labor" | "free"
+      ingredient_unit: "g" | "kg" | "ml" | "L" | "unite" | "sachet"
+      pricing_mode: "margin" | "price"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +385,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      cost_line_type: ["ingredient", "labor", "free"],
+      ingredient_unit: ["g", "kg", "ml", "L", "unite", "sachet"],
+      pricing_mode: ["margin", "price"],
+    },
   },
 } as const
