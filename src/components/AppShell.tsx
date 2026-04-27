@@ -17,11 +17,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 
-const items = [
+type NavItem = { title: string; url: "/" | "/couts" | "/recettes"; icon: typeof LayoutDashboard; exact?: boolean };
+
+const items: NavItem[] = [
   { title: "Tableau de bord", url: "/", icon: LayoutDashboard, exact: true },
   { title: "Coûts", url: "/couts", icon: Coins },
   { title: "Recettes", url: "/recettes", icon: FileText },
-] as const;
+];
 
 function AppSidebar() {
   const location = useLocation();
