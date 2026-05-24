@@ -14,6 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
+      box_recipes: {
+        Row: {
+          box_id: string
+          created_at: string
+          id: string
+          position: number
+          quantity: number
+          recipe_id: string
+        }
+        Insert: {
+          box_id: string
+          created_at?: string
+          id?: string
+          position?: number
+          quantity?: number
+          recipe_id: string
+        }
+        Update: {
+          box_id?: string
+          created_at?: string
+          id?: string
+          position?: number
+          quantity?: number
+          recipe_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "box_recipes_box_id_fkey"
+            columns: ["box_id"]
+            isOneToOne: false
+            referencedRelation: "boxes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "box_recipes_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      boxes: {
+        Row: {
+          created_at: string
+          id: string
+          manual_ttc_price: number | null
+          name: string
+          packaging_cost: number
+          pricing_mode: string
+          updated_at: string
+          user_id: string
+          vat_rate: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          manual_ttc_price?: number | null
+          name: string
+          packaging_cost?: number
+          pricing_mode?: string
+          updated_at?: string
+          user_id: string
+          vat_rate?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          manual_ttc_price?: number | null
+          name?: string
+          packaging_cost?: number
+          pricing_mode?: string
+          updated_at?: string
+          user_id?: string
+          vat_rate?: number
+        }
+        Relationships: []
+      }
       fixed_costs: {
         Row: {
           created_at: string

@@ -1,6 +1,6 @@
 import { type ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { Coins, FileText, LayoutDashboard, LogOut } from "lucide-react";
+import { Box, Coins, FileText, LayoutDashboard, LogOut } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -17,12 +17,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 
-type NavItem = { title: string; url: "/" | "/couts" | "/recettes"; icon: typeof LayoutDashboard; exact?: boolean };
+type NavItem = { title: string; url: "/" | "/couts" | "/recettes" | "/boxes"; icon: typeof LayoutDashboard; exact?: boolean };
 
 const items: NavItem[] = [
   { title: "Tableau de bord", url: "/", icon: LayoutDashboard, exact: true },
   { title: "Coûts", url: "/couts", icon: Coins },
   { title: "Recettes", url: "/recettes", icon: FileText },
+  { title: "Boxes", url: "/boxes", icon: Box },
 ];
 
 function AppSidebar() {
