@@ -420,12 +420,12 @@ function BoxPage() {
                       />
                     </div>
                     <div className="text-right">
-                      <div className="text-xs text-muted-foreground">Prix TTC/pièce</div>
+                      <div className="text-xs text-muted-foreground">Prix HT/pièce</div>
                       <div className="text-sm font-semibold tabular-nums text-primary">
-                        {detail ? formatEuro(detail.ttcPerPiece) : "—"}
+                        {detail ? formatEuro(detail.htPerPiece) : "—"}
                       </div>
                       <div className="text-xs tabular-nums text-muted-foreground">
-                        {detail ? `Total : ${formatEuro(detail.ttcPerPiece * entry.quantity)}` : ""}
+                        {detail ? `Total : ${formatEuro(detail.htPerPiece * entry.quantity)}` : ""}
                       </div>
                     </div>
                     <Button size="icon" variant="ghost" className="text-destructive" onClick={remove}>
