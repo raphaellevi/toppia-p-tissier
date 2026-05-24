@@ -90,3 +90,31 @@ export interface RecipeWithDetails extends Recipe {
   cost_lines: CostLine[];
   extra_fees: ExtraFee[];
 }
+
+export type BoxPricingMode = "auto" | "manual";
+
+export interface Box {
+  id: string;
+  user_id: string;
+  name: string;
+  packaging_cost: number;
+  vat_rate: number;
+  pricing_mode: BoxPricingMode;
+  manual_ttc_price: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BoxRecipe {
+  id: string;
+  box_id: string;
+  recipe_id: string;
+  quantity: number;
+  position: number;
+  created_at: string;
+}
+
+export interface BoxWithDetails extends Box {
+  box_recipes: BoxRecipe[];
+  recipes: RecipeWithDetails[];
+}

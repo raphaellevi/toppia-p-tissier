@@ -121,3 +121,49 @@ export function marginBucket(percent: number): "good" | "warn" | "bad" {
   if (percent >= 30) return "warn";
   return "bad";
 }
+
+// ============================================================
+// BOX CALCULATIONS
+// ============================================================
+
+export interface BoxCostBreakdown {
+  recipesCost: number;
+  packagingCost: number;
+  totalCost: number;
+}
+
+export interface BoxSellingResult {
+  htTotal: number;
+  ttcTotal: number;
+  marginPercent: number;
+}
+
+export function computeBoxCost(
+  packagingCost: number,
+  entries: Array<{ quantity: number; recipeCostPerPiece: number }>,
+): BoxCostBreakdown {
+  const recipesCost = entries.reduce((s, e) => s + e.recipeCostPerPiece * e.quantity, 0);
+  return { recipesCost, packagingCost: Number(packagingCost), totalCost: recipesCost + Number(packagingCost) };
+}
+
+export function computeBoxSellingPrice(
+  cost: BoxCostBreakdown,
+  entries: Array<{ quantity: number; recipeHtPerPiece: number }>,
+  vatRate: number,
+  pricingMode: "auto" | "manual",
+  manualTtc: number | null,
+): BoxSellingResult {
+  let htTotal: number;
+  let ttcTotal: number;
+
+  if (pricingMode === "auto") {
+    htTotal = entries.reduce((s, e) => s + e.recipeHtPerPiece * e.quantity, 0) + cost.packagingCost;
+    ttcTotal = htTotal * (1 + vatRate / 100);
+  } else {
+    ttcTotal = manualTtc ?? 0;
+    htTotal = vatRate > -100 ? ttcTotal / (1 + vatRate / 100) : ttcTotal;
+  }
+
+  const margin = cost.totalCost > 0 ? ((htTotal - cost.totalCost) / cost.totalCost) * 100 : 0;
+  return { htTotal, ttcTotal, marginPercent: margin };
+}

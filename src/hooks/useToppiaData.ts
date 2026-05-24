@@ -6,6 +6,9 @@ import {
 } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type {
+  Box,
+  BoxRecipe,
+  BoxWithDetails,
   CostLine,
   ExtraFee,
   FixedCosts,
@@ -321,5 +324,151 @@ export function useSaveExtraFees() {
     onSuccess: (_d, vars) => {
       qc.invalidateQueries({ queryKey: ["recipe", vars.recipeId] });
     },
+  });
+}
+
+// ============== BOXES ==============
+export function useBoxes() {
+  return useQuery({
+    queryKey: ["boxes"],
+    queryFn: async (): Promise<(Box & { recipe_count: number })[]> => {
+      const { data: boxes, error } = await supabase
+        .from("boxes")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      if (!boxes || boxes.length === 0) return [];
+      const ids = boxes.map((b) => b.id);
+      const { data: counts } = await supabase
+        .from("box_recipes")
+        .select("box_id")
+        .in("box_id", ids);
+      return boxes.map((b) => ({
+        ...(b as Box),
+        recipe_count: (counts ?? []).filter((c) => c.box_id === b.id).length,
+      }));
+    },
+  });
+}
+
+export function useBoxWithDetails(id: string | undefined) {
+  return useQuery({
+    queryKey: ["box", id],
+    enabled: !!id,
+    queryFn: async (): Promise<BoxWithDetails | null> => {
+      if (!id) return null;
+      const { data: box, error: e1 } = await supabase
+        .from("boxes")
+        .select("*")
+        .eq("id", id)
+        .maybeSingle();
+      if (e1) throw e1;
+      if (!box) return null;
+      const { data: boxRecipes, error: e2 } = await supabase
+        .from("box_recipes")
+        .select("*")
+        .eq("box_id", id)
+        .order("position", { ascending: true });
+      if (e2) throw e2;
+      const recipeIds = (boxRecipes ?? []).map((br) => br.recipe_id);
+      let recipesWithDetails: RecipeWithDetails[] = [];
+      if (recipeIds.length > 0) {
+        const { data: recipes, error: e3 } = await supabase
+          .from("recipes")
+          .select("*")
+          .in("id", recipeIds);
+        if (e3) throw e3;
+        const { data: allLines, error: e4 } = await supabase
+          .from("recipe_cost_lines")
+          .select("*")
+          .in("recipe_id", recipeIds);
+        if (e4) throw e4;
+        const { data: allFees, error: e5 } = await supabase
+          .from("recipe_extra_fees")
+          .select("*")
+          .in("recipe_id", recipeIds);
+        if (e5) throw e5;
+        recipesWithDetails = (recipes ?? []).map((r) => ({
+          ...(r as Recipe),
+          cost_lines: (allLines ?? []).filter((l) => l.recipe_id === r.id) as CostLine[],
+          extra_fees: (allFees ?? []).filter((f) => f.recipe_id === r.id) as ExtraFee[],
+        }));
+      }
+      return {
+        ...(box as Box),
+        box_recipes: (boxRecipes ?? []) as BoxRecipe[],
+        recipes: recipesWithDetails,
+      };
+    },
+  });
+}
+
+export function useCreateBox() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ name }: { name: string }): Promise<string> => {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) throw new Error("Non authentifié");
+      const { data, error } = await supabase
+        .from("boxes")
+        .insert({ name, user_id: userData.user.id })
+        .select("id")
+        .single();
+      if (error) throw error;
+      return data.id as string;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["boxes"] }),
+  });
+}
+
+export function useUpdateBox() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: Partial<Box> & { id: string }) => {
+      const { id, ...rest } = input;
+      const { error } = await supabase.from("boxes").update(rest).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: (_d, vars) => {
+      qc.invalidateQueries({ queryKey: ["boxes"] });
+      qc.invalidateQueries({ queryKey: ["box", vars.id] });
+    },
+  });
+}
+
+export function useDeleteBox() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("boxes").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["boxes"] }),
+  });
+}
+
+export type BoxRecipeDraft = { recipe_id: string; quantity: number; position: number };
+
+export function useSaveBoxRecipes() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ boxId, entries }: { boxId: string; entries: BoxRecipeDraft[] }) => {
+      const { error: delErr } = await supabase
+        .from("box_recipes")
+        .delete()
+        .eq("box_id", boxId);
+      if (delErr) throw delErr;
+      if (entries.length > 0) {
+        const payload = entries.map((e, i) => ({
+          box_id: boxId,
+          recipe_id: e.recipe_id,
+          quantity: e.quantity,
+          position: i,
+        }));
+        const { error } = await supabase.from("box_recipes").insert(payload);
+        if (error) throw error;
+      }
+    },
+    onSuccess: (_d, vars) => qc.invalidateQueries({ queryKey: ["box", vars.boxId] }),
   });
 }
