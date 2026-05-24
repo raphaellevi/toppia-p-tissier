@@ -47,6 +47,11 @@ function BoxesPage() {
 
         {boxes.isLoading ? (
           <div className="py-10 text-center text-sm text-muted-foreground">Chargement…</div>
+        ) : boxes.isError ? (
+          <div className="py-10 text-center text-sm text-destructive">
+            Erreur : {boxes.error instanceof Error ? boxes.error.message : "Impossible de charger les boxes."}
+            <p className="mt-1 text-xs text-muted-foreground">Vérifiez que la migration SQL a été appliquée dans Supabase.</p>
+          </div>
         ) : (boxes.data?.length ?? 0) === 0 ? (
           <Card className="border-dashed border-banane bg-secondary/40">
             <CardContent className="flex flex-col items-center gap-3 py-14 text-center">
