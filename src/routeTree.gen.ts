@@ -12,10 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as CoutsRouteImport } from './routes/couts'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as BoxesIndexRouteImport } from './routes/boxes/index'
-import { Route as BoxesIdRouteImport } from './routes/boxes/$id'
 import { Route as RecettesIndexRouteImport } from './routes/recettes/index'
+import { Route as BoxesIndexRouteImport } from './routes/boxes/index'
 import { Route as RecettesIdRouteImport } from './routes/recettes/$id'
+import { Route as BoxesIdRouteImport } from './routes/boxes/$id'
 
 const CoutsRoute = CoutsRouteImport.update({
   id: '/couts',
@@ -32,24 +32,24 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BoxesIndexRoute = BoxesIndexRouteImport.update({
-  id: '/boxes/',
-  path: '/boxes/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BoxesIdRoute = BoxesIdRouteImport.update({
-  id: '/boxes/$id',
-  path: '/boxes/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const RecettesIndexRoute = RecettesIndexRouteImport.update({
   id: '/recettes/',
   path: '/recettes/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BoxesIndexRoute = BoxesIndexRouteImport.update({
+  id: '/boxes/',
+  path: '/boxes/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RecettesIdRoute = RecettesIdRouteImport.update({
   id: '/recettes/$id',
   path: '/recettes/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BoxesIdRoute = BoxesIdRouteImport.update({
+  id: '/boxes/$id',
+  path: '/boxes/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -58,8 +58,8 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/couts': typeof CoutsRoute
   '/boxes/$id': typeof BoxesIdRoute
-  '/boxes/': typeof BoxesIndexRoute
   '/recettes/$id': typeof RecettesIdRoute
+  '/boxes/': typeof BoxesIndexRoute
   '/recettes/': typeof RecettesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -67,8 +67,8 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/couts': typeof CoutsRoute
   '/boxes/$id': typeof BoxesIdRoute
-  '/boxes': typeof BoxesIndexRoute
   '/recettes/$id': typeof RecettesIdRoute
+  '/boxes': typeof BoxesIndexRoute
   '/recettes': typeof RecettesIndexRoute
 }
 export interface FileRoutesById {
@@ -77,16 +77,38 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/couts': typeof CoutsRoute
   '/boxes/$id': typeof BoxesIdRoute
-  '/boxes/': typeof BoxesIndexRoute
   '/recettes/$id': typeof RecettesIdRoute
+  '/boxes/': typeof BoxesIndexRoute
   '/recettes/': typeof RecettesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/couts' | '/boxes/$id' | '/boxes/' | '/recettes/$id' | '/recettes/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/couts'
+    | '/boxes/$id'
+    | '/recettes/$id'
+    | '/boxes/'
+    | '/recettes/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/couts' | '/boxes/$id' | '/boxes' | '/recettes/$id' | '/recettes'
-  id: '__root__' | '/' | '/auth' | '/couts' | '/boxes/$id' | '/boxes/' | '/recettes/$id' | '/recettes/'
+  to:
+    | '/'
+    | '/auth'
+    | '/couts'
+    | '/boxes/$id'
+    | '/recettes/$id'
+    | '/boxes'
+    | '/recettes'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/couts'
+    | '/boxes/$id'
+    | '/recettes/$id'
+    | '/boxes/'
+    | '/recettes/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -94,8 +116,8 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CoutsRoute: typeof CoutsRoute
   BoxesIdRoute: typeof BoxesIdRoute
-  BoxesIndexRoute: typeof BoxesIndexRoute
   RecettesIdRoute: typeof RecettesIdRoute
+  BoxesIndexRoute: typeof BoxesIndexRoute
   RecettesIndexRoute: typeof RecettesIndexRoute
 }
 
@@ -122,20 +144,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/boxes/': {
-      id: '/boxes/'
-      path: '/boxes'
-      fullPath: '/boxes/'
-      preLoaderRoute: typeof BoxesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/boxes/$id': {
-      id: '/boxes/$id'
-      path: '/boxes/$id'
-      fullPath: '/boxes/$id'
-      preLoaderRoute: typeof BoxesIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/recettes/': {
       id: '/recettes/'
       path: '/recettes'
@@ -143,11 +151,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecettesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/boxes/': {
+      id: '/boxes/'
+      path: '/boxes'
+      fullPath: '/boxes/'
+      preLoaderRoute: typeof BoxesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/recettes/$id': {
       id: '/recettes/$id'
       path: '/recettes/$id'
       fullPath: '/recettes/$id'
       preLoaderRoute: typeof RecettesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/boxes/$id': {
+      id: '/boxes/$id'
+      path: '/boxes/$id'
+      fullPath: '/boxes/$id'
+      preLoaderRoute: typeof BoxesIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -158,10 +180,19 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CoutsRoute: CoutsRoute,
   BoxesIdRoute: BoxesIdRoute,
-  BoxesIndexRoute: BoxesIndexRoute,
   RecettesIdRoute: RecettesIdRoute,
+  BoxesIndexRoute: BoxesIndexRoute,
   RecettesIndexRoute: RecettesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
