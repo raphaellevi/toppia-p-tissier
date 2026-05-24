@@ -124,7 +124,13 @@ export function useFixedCosts() {
   return useQuery({
     queryKey: ["fixed_costs"],
     queryFn: async (): Promise<FixedCosts | null> => {
-      const { data, error } = await supabase.from("fixed_costs").select("*").maybeSingle();
+      // shared mode: grab the first (and typically only) row, ordered by creation date
+      const { data, error } = await supabase
+        .from("fixed_costs")
+        .select("*")
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
       if (error) throw error;
       if (!data) return null;
       return {
@@ -143,17 +149,36 @@ export function useUpsertFixedCosts() {
     mutationFn: async (input: Omit<FixedCosts, "id" | "user_id" | "created_at" | "updated_at">) => {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) throw new Error("Non authentifié");
-      const payload = [{
-        user_id: userData.user.id,
-        electricity: input.electricity,
-        rent: input.rent,
-        other_charges: input.other_charges as unknown as never,
-        hours_per_month: input.hours_per_month,
-      }];
-      const { error } = await supabase
+
+      // shared mode: update the first existing row, or insert if none exists yet
+      const { data: existing } = await supabase
         .from("fixed_costs")
-        .upsert(payload, { onConflict: "user_id" });
-      if (error) throw error;
+        .select("id")
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+
+      if (existing?.id) {
+        const { error } = await supabase
+          .from("fixed_costs")
+          .update({
+            electricity: input.electricity,
+            rent: input.rent,
+            other_charges: input.other_charges as unknown as never,
+            hours_per_month: input.hours_per_month,
+          })
+          .eq("id", existing.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("fixed_costs").insert({
+          user_id: userData.user.id,
+          electricity: input.electricity,
+          rent: input.rent,
+          other_charges: input.other_charges as unknown as never,
+          hours_per_month: input.hours_per_month,
+        });
+        if (error) throw error;
+      }
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["fixed_costs"] }),
   });
