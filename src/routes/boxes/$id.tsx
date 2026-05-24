@@ -35,13 +35,13 @@ import {
 } from "@/components/ui/command";
 import { ArrowLeft, Check, ChevronsUpDown, Plus, Save, Trash2 } from "lucide-react";
 import {
+  useAllRecipesWithDetails,
   useBoxWithDetails,
   useCreateBox,
   useDeleteBox,
   useIngredients,
   useLaborProfiles,
   useFixedCosts,
-  useRecipes,
   useSaveBoxRecipes,
   useUpdateBox,
   type BoxRecipeDraft,
@@ -174,7 +174,7 @@ function BoxPage() {
   const ingredients = useIngredients();
   const profiles = useLaborProfiles();
   const fixedQ = useFixedCosts();
-  const allRecipes = useRecipes();
+  const allRecipesWithDetails = useAllRecipesWithDetails();
 
   const updateMut = useUpdateBox();
   const saveEntries = useSaveBoxRecipes();
@@ -219,9 +219,8 @@ function BoxPage() {
   }, [fixedQ.data]);
 
   const recipeDetails = useMemo(() => {
-    if (!boxQ.data) return [];
     return entries.map((entry) => {
-      const recipe = boxQ.data!.recipes.find((r) => r.id === entry.recipe_id);
+      const recipe = allRecipesWithDetails.data?.find((r) => r.id === entry.recipe_id);
       if (!recipe) return null;
       const cost = computeRecipeCost(
         recipe.cost_lines,
@@ -246,7 +245,7 @@ function BoxPage() {
         ttcPerPiece: selling.ttcPerPiece,
       };
     });
-  }, [entries, boxQ.data, ingredients.data, profiles.data, fixedHourly]);
+  }, [entries, allRecipesWithDetails.data, ingredients.data, profiles.data, fixedHourly]);
 
   const boxCost = useMemo(
     () =>
@@ -305,7 +304,7 @@ function BoxPage() {
   };
 
   const addEntry = () => {
-    const firstRecipe = allRecipes.data?.[0];
+    const firstRecipe = allRecipesWithDetails.data?.[0];
     if (!firstRecipe) return;
     setEntries((prev) => [
       ...prev,
@@ -385,7 +384,7 @@ function BoxPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <CardTitle className="text-base">Contenu de la box</CardTitle>
-            <Button size="sm" variant="outline" onClick={addEntry} className="gap-1" disabled={!allRecipes.data?.length}>
+            <Button size="sm" variant="outline" onClick={addEntry} className="gap-1" disabled={!allRecipesWithDetails.data?.length}>
               <Plus className="h-3.5 w-3.5" />
               Ajouter une recette
             </Button>
@@ -409,7 +408,7 @@ function BoxPage() {
                       <Label className="text-xs">Recette</Label>
                       <RecipeCombobox
                         value={entry.recipe_id}
-                        options={allRecipes.data ?? []}
+                        options={allRecipesWithDetails.data ?? []}
                         onChange={(id) => update({ recipe_id: id })}
                       />
                     </div>

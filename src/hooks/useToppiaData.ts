@@ -160,6 +160,36 @@ export function useUpsertFixedCosts() {
 }
 
 // ============== RECIPES ==============
+export function useAllRecipesWithDetails() {
+  return useQuery({
+    queryKey: ["recipes_with_details"],
+    queryFn: async (): Promise<RecipeWithDetails[]> => {
+      const { data: recipes, error: e1 } = await supabase
+        .from("recipes")
+        .select("*")
+        .order("title", { ascending: true });
+      if (e1) throw e1;
+      if (!recipes || recipes.length === 0) return [];
+      const ids = recipes.map((r) => r.id);
+      const { data: allLines, error: e2 } = await supabase
+        .from("recipe_cost_lines")
+        .select("*")
+        .in("recipe_id", ids);
+      if (e2) throw e2;
+      const { data: allFees, error: e3 } = await supabase
+        .from("recipe_extra_fees")
+        .select("*")
+        .in("recipe_id", ids);
+      if (e3) throw e3;
+      return recipes.map((r) => ({
+        ...(r as Recipe),
+        cost_lines: (allLines ?? []).filter((l) => l.recipe_id === r.id) as CostLine[],
+        extra_fees: (allFees ?? []).filter((f) => f.recipe_id === r.id) as ExtraFee[],
+      }));
+    },
+  });
+}
+
 export function useRecipes() {
   return useQuery({
     queryKey: ["recipes"],
