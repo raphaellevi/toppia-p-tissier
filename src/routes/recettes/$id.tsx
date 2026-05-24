@@ -25,7 +25,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Plus, Save, Trash2 } from "lucide-react";
+import { ArrowLeft, Check, ChevronsUpDown, Plus, Save, Trash2 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import {
   useDeleteRecipe,
   useFixedCosts,
@@ -69,6 +78,80 @@ function emptyLine(type: CostLineType): CostLineDraft {
     free_label: type === "free" ? "" : null,
     free_amount: type === "free" ? 0 : null,
   };
+}
+
+function QuantityInput({ value, onChange }: { value: number | null; onChange: (v: number | null) => void }) {
+  const [display, setDisplay] = useState(() =>
+    value != null ? String(value).replace(".", ",") : ""
+  );
+  return (
+    <Input
+      type="text"
+      inputMode="decimal"
+      value={display}
+      onChange={(e) => {
+        const raw = e.target.value.replace(/[^0-9,]/g, "");
+        const parts = raw.split(",");
+        const cleaned = parts.length > 2 ? parts[0] + "," + parts.slice(1).join("") : raw;
+        setDisplay(cleaned);
+        const numeric = parseFloat(cleaned.replace(",", "."));
+        onChange(isNaN(numeric) ? null : numeric);
+      }}
+    />
+  );
+}
+
+type IngredientOption = { id: string; name: string };
+
+function IngredientCombobox({
+  value,
+  options,
+  onChange,
+}: {
+  value: string | null;
+  options: IngredientOption[];
+  onChange: (id: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const selected = options.find((o) => o.id === value);
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between font-normal"
+        >
+          <span className="truncate">{selected ? selected.name : "Choisir…"}</span>
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[260px] p-0" align="start">
+        <Command>
+          <CommandInput placeholder="Rechercher…" />
+          <CommandList>
+            <CommandEmpty>Aucun ingrédient trouvé.</CommandEmpty>
+            <CommandGroup>
+              {options.map((o) => (
+                <CommandItem
+                  key={o.id}
+                  value={o.name}
+                  onSelect={() => {
+                    onChange(o.id);
+                    setOpen(false);
+                  }}
+                >
+                  <Check className={`mr-2 h-4 w-4 ${value === o.id ? "opacity-100" : "opacity-0"}`} />
+                  {o.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
 }
 
 function RecipePage() {
@@ -303,18 +386,15 @@ function RecipePage() {
                     <div className="grid gap-2 sm:grid-cols-[2fr_1fr_auto] sm:items-end">
                       <div>
                         <Label className="text-xs">Ingrédient</Label>
-                        <Select value={line.ingredient_id ?? ""} onValueChange={(v) => update({ ingredient_id: v })}>
-                          <SelectTrigger><SelectValue placeholder="Choisir…" /></SelectTrigger>
-                          <SelectContent>
-                            {(ingredients.data ?? []).map((i) => (
-                              <SelectItem key={i.id} value={i.id}>{i.name}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <IngredientCombobox
+                          value={line.ingredient_id}
+                          options={ingredients.data ?? []}
+                          onChange={(id) => update({ ingredient_id: id })}
+                        />
                       </div>
                       <div>
                         <Label className="text-xs">Quantité ({ing ? UNIT_LABELS[ing.unit] : "—"})</Label>
-                        <Input type="number" step="any" min="0" value={line.quantity ?? ""} onChange={(e) => update({ quantity: Number(e.target.value) })} />
+                        <QuantityInput value={line.quantity} onChange={(v) => update({ quantity: v })} />
                       </div>
                       <div className="text-right text-sm font-semibold tabular-nums text-primary sm:min-w-24">
                         {formatEuro(lineCost)}
